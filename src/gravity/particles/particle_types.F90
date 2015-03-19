@@ -188,6 +188,8 @@ contains
       type(particle),      intent(in)    :: part     !< new particle
 
 ! Cannot just do "call part%is_outside" because this will require changes of intent here and in add_using_basic_types, which we don\'t want to do
+! OPT: LHS-realloc is going to be terribly slow when the number of particles is of order of thousands or millions
+! Consider doubling the array size and flag inactive entries
       this%p = [this%p, part]  ! LHS-realloc
       call this%p(ubound(this%p, dim=1))%is_outside
 
@@ -226,6 +228,8 @@ contains
          call die(msg)
       endif
 
+! OPT: LHS-realloc is going to be terribly slow when the number of particles is of order of thousands or millions
+! Consider flagging inactive entries and occasional cleanups/reordering
       this%p = [this%p(:id-1), this%p(id+1:)]   ! LHS-realloc, please note  that if id == lbound(this%p, 1)
                                                 ! or id == ubound(this%p, 1) it does not cause out of bound
                                                 ! access in p
